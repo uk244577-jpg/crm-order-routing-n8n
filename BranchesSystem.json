@@ -1,0 +1,345 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        112
+      ],
+      "id": "59070909-e3c6-4f29-b116-4e6643161b05",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1svFajv2xdkSL78mYP6CKuTpI-mnq7QhGJrQaqUu-aWY/edit?gid=240175381#gid=240175381",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 240175381,
+          "mode": "list",
+          "cachedResultName": "Mock_Orders_Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1svFajv2xdkSL78mYP6CKuTpI-mnq7QhGJrQaqUu-aWY/edit#gid=240175381"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        112
+      ],
+      "id": "241a3dcf-fae8-476d-9109-af0babecac7e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4H3M0kLr1u8cEcLw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Pending",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "af2de843-98f1-409f-a234-521091d6a189"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Pending status"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "534ef81b-af58-492f-80a9-d9af902dfe58",
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Processing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Processing status"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "16a04739-6b04-4bee-82bd-3fe772aba4ec",
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Cancelled",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancelled status"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "142feac6-16de-492d-9c46-cbd02771af49",
+                    "leftValue": "={{ $json.order_status }}",
+                    "rightValue": "Shipped",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Shipped status"
+            }
+          ]
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        80
+      ],
+      "id": "d1d2c0ad-bb71-49ca-81f9-220fa5e31ce3",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "=l252003@lhr.nu.edu.pk",
+        "subject": "=Order  {{ $json.order_id }} is in pending state",
+        "message": "getting connect with the customer",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -176
+      ],
+      "id": "958176f9-1cc0-4415-a498-c8a9dfb76f8d",
+      "name": "Send a message",
+      "webhookId": "37cb29e0-9dd9-4e14-80cb-60ac5de66d7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FoxxVfUBoYiegwu4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B8K9210GN",
+          "mode": "list",
+          "cachedResultName": "all-automation-test-lab"
+        },
+        "text": "=hey this order  {{ $json.order_id }} is in processing",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        672,
+        16
+      ],
+      "id": "8c7ba6f8-ecae-4cac-8bbf-3e7b1d99a8db",
+      "name": "Send a message1",
+      "webhookId": "5921bab2-20b1-4626-835e-d5a1a1f26e83",
+      "credentials": {
+        "slackApi": {
+          "id": "uLtBBWjxRs05rkRz",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=l252003@lhr.nu.edu.pk",
+        "subject": "=Order  {{ $json.order_id }} is in refunded/cancel state",
+        "message": "getting connect with the customer",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        208
+      ],
+      "id": "de237f81-529b-4751-9474-35d31ed38ab6",
+      "name": "Send a message2",
+      "webhookId": "37cb29e0-9dd9-4e14-80cb-60ac5de66d7f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FoxxVfUBoYiegwu4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0B8R00M0DA",
+          "mode": "list",
+          "cachedResultName": "new-channel"
+        },
+        "text": "=hey this order  {{ $json.order_id }} is in csncl/shipped",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        672,
+        400
+      ],
+      "id": "ba7df213-6277-4cc3-a46c-ac30ef81ac53",
+      "name": "Send a message3",
+      "webhookId": "5921bab2-20b1-4626-835e-d5a1a1f26e83",
+      "credentials": {
+        "slackApi": {
+          "id": "uLtBBWjxRs05rkRz",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "53211006-a8a5-458d-bcb8-5acb56558aec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b29f4eb9481d4e80d474535c83857577eea4e99dc74d89dfd402e88ed1db9d97"
+  },
+  "nodeGroups": [],
+  "id": "K8g9MBWMdI3sSCdf",
+  "tags": []
+}
